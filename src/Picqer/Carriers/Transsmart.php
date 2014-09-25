@@ -145,8 +145,15 @@ class Transsmart {
 
     public function login()
     {
-        return $this->get('/LoginToken', 'GET', array(
+        return $this->get('/LoginToken', array(
             'expiration' => 3600
+        ));
+    }
+
+    public function getDocument($id)
+    {
+        return $this->get('/Document', array(
+            'id' => $id
         ));
     }
 
