@@ -43,7 +43,7 @@ class Transsmart {
 
     private function apiLocation()
     {
-        return $this->testMode ? $this->apiTestLocation: $this->apiLocation;
+        return $this->testMode ? $this->apiTestLocation : $this->apiLocation;
     }
 
     /**
@@ -107,8 +107,8 @@ class Transsmart {
     public function createDocument(array $params, $autoBook = false, $autoLabel = false, $labelUser = null)
     {
         $queryParams = [
-            'autobook' => intval($autoBook),
-            'autolabel' => intval($autoLabel),
+            'autobook'   => intval($autoBook),
+            'autolabel'  => intval($autoLabel),
             'label_user' => $labelUser
         ];
 
@@ -127,7 +127,7 @@ class Transsmart {
     {
         $queryParams = [
             'username' => $this->username,
-            'pdf' => intval($pdf)
+            'pdf'      => intval($pdf)
         ];
 
         return $this->get('/DoLabel/' . $id . '?' . http_build_query($queryParams));
@@ -136,7 +136,7 @@ class Transsmart {
     public function bookAndPrintDocument($id)
     {
         $queryParams = [
-            'id' => $id,
+            'id'       => $id,
             'username' => $this->username
         ];
 
