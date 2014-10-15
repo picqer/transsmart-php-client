@@ -66,7 +66,8 @@ class Transsmart {
             $query->set($paramName, $paramValue);
         }
 
-        try {
+        try
+        {
             $result = $this->client->send($request);
         } catch (RequestException $e)
         {
@@ -148,11 +149,12 @@ class Transsmart {
         return $this->get('/DoBooking/' . $id);
     }
 
-    public function labelDocument($id, $pdf = false)
+    public function labelDocument($id, $pdf = false, $downloadOnly = false)
     {
         $queryParams = [
-            'username' => $this->username,
-            'pdf'      => intval($pdf)
+            'username'     => $this->username,
+            'pdf'          => intval($pdf),
+            'downloadonly' => intval($downloadOnly)
         ];
 
         return $this->get('/DoLabel/' . $id . '?' . http_build_query($queryParams));
