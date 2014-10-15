@@ -1,6 +1,8 @@
 <?php namespace Picqer\Carriers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Message\Response;
 
 class Transsmart {
 
@@ -51,7 +53,8 @@ class Transsmart {
      *
      * @param $endpoint
      * @param array $params
-     * @return \GuzzleHttp\Message\Response
+     * @throws TranssmartException
+     * @return Response
      */
     private function get($endpoint, array $params = [])
     {
@@ -63,7 +66,17 @@ class Transsmart {
             $query->set($paramName, $paramValue);
         }
 
-        return $this->client->send($request);
+        try {
+            $result = $this->client->send($request);
+        } catch (RequestException $e)
+        {
+            if ($e->hasResponse())
+                throw new TranssmartException($e->getResponse()->getBody());
+
+            throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
+        }
+
+        return $result;
     }
 
     /**
@@ -72,11 +85,23 @@ class Transsmart {
      * @param $endpoint
      * @param $body
      *
-     * @return \GuzzleHttp\Message\Response
+     * @throws TranssmartException
+     * @return Response
      */
     private function post($endpoint, $body)
     {
-        return $this->client->post($this->apiLocation() . $endpoint, ['body' => $body]);
+        try
+        {
+            $result = $this->client->post($this->apiLocation() . $endpoint, ['body' => $body]);
+        } catch (RequestException $e)
+        {
+            if ($e->hasResponse())
+                throw new TranssmartException($e->getResponse()->getBody());
+
+            throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
+        }
+
+        return $result;
     }
 
     public function getCarriers()
