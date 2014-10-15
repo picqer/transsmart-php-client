@@ -76,7 +76,7 @@ class Transsmart {
             throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
         }
 
-        return $result;
+        return $result->json();
     }
 
     /**
@@ -101,7 +101,7 @@ class Transsmart {
             throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
         }
 
-        return $result;
+        return $result->json();
     }
 
     public function getCarriers()
