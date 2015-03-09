@@ -119,6 +119,9 @@ class Transsmart {
             $this->logger->setRequestData(json_encode($body));
 
             $result = $this->client->post($this->apiLocation() . $endpoint, ['body' => $body]);
+
+            $this->logger->setResponseCode($result->getStatusCode());
+            $this->logger->setResponseData((string)$result->getBody());
         } catch (RequestException $e)
         {
             if ($e->hasResponse())
