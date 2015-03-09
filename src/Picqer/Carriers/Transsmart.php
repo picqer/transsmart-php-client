@@ -6,6 +6,11 @@ use GuzzleHttp\Message\Response;
 
 class Transsmart {
 
+    /**
+     * @var TranssmartLogger
+     */
+    protected $logger;
+
     private $username;
     private $password;
 
@@ -19,11 +24,12 @@ class Transsmart {
      */
     private $client;
 
-    public function __construct($username, $password, Client $client)
+    public function __construct($username, $password, Client $client, TranssmartLogger $logger = null)
     {
         $this->username = $username;
         $this->password = $password;
         $this->client = $client;
+        $this->logger = $logger ?: new TranssmartLogger;
 
         $this->setClientDefaults();
     }
@@ -66,15 +72,31 @@ class Transsmart {
             $query->set($paramName, $paramValue);
         }
 
+        $this->logger->setRequestUrl($request->getUrl());
+        $this->logger->setRequestData((string)$query);
+
         try
         {
             $result = $this->client->send($request);
+
+            $this->logger->setResponseCode($result->getStatusCode());
+            $this->logger->setResponseData((string)$result->getBody());
         } catch (RequestException $e)
         {
             if ($e->hasResponse())
-                throw new TranssmartException($e->getResponse()->getBody());
+            {
+                $this->logger->setResponseCode($e->getResponse()->getStatusCode());
+                $this->logger->setResponseData((string)$e->getResponse()->getBody());
 
-            throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
+                throw new TranssmartException($e->getResponse()->getBody());
+            } else
+            {
+                $this->logger->setResponseCode(null);
+                $this->logger->setResponseData('Transsmart error (no message provided)');
+
+                throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
+            }
+
         }
 
         return $result->json();
@@ -93,13 +115,25 @@ class Transsmart {
     {
         try
         {
+            $this->logger->setRequestUrl($this->apiLocation() . $endpoint);
+            $this->logger->setRequestData(json_encode($body));
+
             $result = $this->client->post($this->apiLocation() . $endpoint, ['body' => $body]);
         } catch (RequestException $e)
         {
             if ($e->hasResponse())
-                throw new TranssmartException($e->getResponse()->getBody());
+            {
+                $this->logger->setResponseCode($e->getResponse()->getStatusCode());
+                $this->logger->setResponseData((string)$e->getResponse()->getBody());
 
-            throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
+                throw new TranssmartException($e->getResponse()->getBody());
+            } else
+            {
+                $this->logger->setResponseCode(null);
+                $this->logger->setResponseData('Transsmart error (no message provided)');
+
+                throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse());
+            }
         }
 
         return $result->json();
@@ -182,6 +216,14 @@ class Transsmart {
         return $this->get('/Document', array(
             'id' => $id
         ));
+    }
+
+    /**
+     * @return TranssmartLogger
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
 }
