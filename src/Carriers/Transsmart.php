@@ -2,7 +2,7 @@
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Message\Response;
+use GuzzleHttp\Psr7\Response;
 
 class Transsmart {
 
@@ -24,19 +24,18 @@ class Transsmart {
      */
     private $client;
 
-    public function __construct($username, $password, Client $client, TranssmartLogger $logger = null)
+    public function __construct($username, $password, $testmode = false, TranssmartLogger $logger = null)
     {
         $this->username = $username;
         $this->password = $password;
-        $this->client = $client;
         $this->logger = $logger ?: new TranssmartLogger;
 
-        $this->setClientDefaults();
-    }
+        $this->setTestMode($testmode);
 
-    private function setClientDefaults()
-    {
-        $this->client->setDefaultOption('auth', array($this->username, $this->password));
+        $this->client = new Client([
+            'auth' => [$this->username, $this->password],
+            'verify' => false
+        ]);
     }
 
     /**
@@ -58,37 +57,28 @@ class Transsmart {
      * Send a GET request
      *
      * @param $endpoint
-     * @param array $params
      * @throws TranssmartException
      * @return Response
      */
-    private function get($endpoint, array $params = [])
+    private function get($endpoint)
     {
-        $request = $this->client->createRequest('GET', $this->apiLocation() . $endpoint);
-        $query = $request->getQuery();
-
-        foreach ($params as $paramName => $paramValue)
-        {
-            $query->set($paramName, $paramValue);
-        }
-
-        $this->logger->setRequestUrl($request->getUrl());
-        $this->logger->setRequestData((string)$query);
+        $endpoint = $this->apiLocation() . $endpoint;
+        $this->logger->setRequestUrl($endpoint);
 
         try
         {
-            $result = $this->client->send($request);
+            $result = $this->client->get($endpoint);
 
             $this->logger->setResponseCode($result->getStatusCode());
-            $this->logger->setResponseData((string)$result->getBody());
+            $this->logger->setResponseData((string)$result->getBody()->getContents());
         } catch (RequestException $e)
         {
             if ($e->hasResponse())
             {
                 $this->logger->setResponseCode($e->getResponse()->getStatusCode());
-                $this->logger->setResponseData((string)$e->getResponse()->getBody());
+                $this->logger->setResponseData((string)$e->getResponse()->getBody()->getContents());
 
-                throw new TranssmartException($e->getResponse()->getBody());
+                throw new TranssmartException($e->getResponse()->getBody()->getContents());
             } else
             {
                 $this->logger->setResponseCode(null);
@@ -99,37 +89,39 @@ class Transsmart {
 
         }
 
-        return $result->json();
+        return json_decode($result->getBody()->getContents(), true);
     }
 
     /**
      * Send a POST request
      *
      * @param $endpoint
-     * @param $body
+     * @param $form_params
      *
      * @throws TranssmartException
      * @return Response
      */
-    private function post($endpoint, $body)
+    private function post($endpoint, $form_params)
     {
+        $endpoint = $this->apiLocation() . $endpoint;
+
         try
         {
-            $this->logger->setRequestUrl($this->apiLocation() . $endpoint);
-            $this->logger->setRequestData(json_encode($body));
+            $this->logger->setRequestUrl($endpoint);
+            $this->logger->setRequestData(json_encode($form_params));
 
-            $result = $this->client->post($this->apiLocation() . $endpoint, ['body' => $body]);
+            $result = $this->client->post($endpoint, ['form_params' => $form_params]);
 
             $this->logger->setResponseCode($result->getStatusCode());
-            $this->logger->setResponseData((string)$result->getBody());
+            $this->logger->setResponseData((string)$result->getBody()->getContents());
         } catch (RequestException $e)
         {
             if ($e->hasResponse())
             {
                 $this->logger->setResponseCode($e->getResponse()->getStatusCode());
-                $this->logger->setResponseData((string)$e->getResponse()->getBody());
+                $this->logger->setResponseData((string)$e->getResponse()->getBody()->getContents());
 
-                throw new TranssmartException($e->getResponse()->getBody());
+                throw new TranssmartException($e->getResponse()->getBody()->getContents());
             } else
             {
                 $this->logger->setResponseCode(null);
@@ -139,7 +131,7 @@ class Transsmart {
             }
         }
 
-        return $result->json();
+        return json_decode($result->getBody()->getContents(), true);
     }
 
     public function getCarriers()
@@ -229,16 +221,12 @@ class Transsmart {
 
     public function login()
     {
-        return $this->get('/LoginToken', array(
-            'expiration' => 3600
-        ));
+        return $this->get('/LoginToken?expiration=3600');
     }
 
     public function getDocument($id)
     {
-        return $this->get('/Document', array(
-            'id' => $id
-        ));
+        return $this->get('/Document?id=' . $id);
     }
 
     /**
