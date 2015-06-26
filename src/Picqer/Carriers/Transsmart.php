@@ -167,6 +167,26 @@ class Transsmart {
         return $this->get('/ShipmentLocation/' . $id);
     }
 
+    public function getServiceLevelTimes()
+    {
+        return $this->get('/ServiceLevelTime');
+    }
+
+    public function getServiceLevelTime($id)
+    {
+        return $this->get('/ServiceLevelTime/' . $id);
+    }
+
+    public function getServiceLevelOthers()
+    {
+        return $this->get('/ServiceLevelOther');
+    }
+
+    public function ServiceLevelOther($id)
+    {
+        return $this->get('/ServiceLevelTime/' . $id);
+    }
+
     public function createDocument(array $params, $autoBook = false, $autoLabel = false, $labelUser = null)
     {
         $queryParams = [
