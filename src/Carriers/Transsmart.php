@@ -246,6 +246,10 @@ class Transsmart
         return $this->get('/Document?id=' . $id);
     }
 
+    public function getEmailTypes()
+    {
+        return $this->get('/EmailType');
+    }
 
     /**
      * @return TranssmartLogger
