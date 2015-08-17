@@ -251,6 +251,16 @@ class Transsmart
         return $this->get('/EmailType');
     }
 
+    public function getCostCenters()
+    {
+        return $this->get('/Costcenter');
+    }
+
+    public function getPackages()
+    {
+        return $this->get('/Package');
+    }
+
     /**
      * @return TranssmartLogger
      */
