@@ -82,10 +82,12 @@ class Transsmart
             $this->logger->setResponseData((string) $contents);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
+                $error = (string) $e->getResponse()->getBody()->getContents();
+                
                 $this->logger->setResponseCode($e->getResponse()->getStatusCode());
-                $this->logger->setResponseData((string) $e->getResponse()->getBody()->getContents());
+                $this->logger->setResponseData($error);
 
-                throw new TranssmartException('Error ' . $e->getResponse()->getStatusCode() .': ' . $e->getResponse()->getBody()->getContents());
+                throw new TranssmartException($error);
             } else {
                 $this->logger->setResponseCode(null);
                 $this->logger->setResponseData('Transsmart error (no message provided)');
