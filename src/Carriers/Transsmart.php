@@ -148,6 +148,12 @@ class Transsmart
     }
 
 
+    public function getCarrier($id)
+    {
+        return $this->get('/Carrier/' . $id);
+    }
+
+
     public function getCarrierProfiles()
     {
         return $this->get('/CarrierProfile');
