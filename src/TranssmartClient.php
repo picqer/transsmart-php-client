@@ -1,10 +1,12 @@
-<?php namespace Picqer\Carriers;
+<?php
+
+namespace Picqer\TranssmartClient;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 
-class Transsmart
+class TranssmartClient
 {
 
     /**
@@ -32,12 +34,12 @@ class Transsmart
     {
         $this->username = $username;
         $this->password = $password;
-        $this->logger   = $logger ?: new TranssmartLogger;
+        $this->logger = $logger ?: new TranssmartLogger;
 
         $this->setTestMode($testmode);
 
         $this->client = new Client([
-            'auth'   => [ $this->username, $this->password ],
+            'auth' => [$this->username, $this->password],
             'verify' => false
         ]);
     }
@@ -79,11 +81,11 @@ class Transsmart
             $contents = $result->getBody()->getContents();
 
             $this->logger->setResponseCode($result->getStatusCode());
-            $this->logger->setResponseData((string) $contents);
+            $this->logger->setResponseData((string)$contents);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
-                $error = (string) $e->getResponse()->getBody()->getContents();
-                
+                $error = (string)$e->getResponse()->getBody()->getContents();
+
                 $this->logger->setResponseCode($e->getResponse()->getStatusCode());
                 $this->logger->setResponseData($error);
 
@@ -118,18 +120,18 @@ class Transsmart
             $this->logger->setRequestUrl($endpoint);
             $this->logger->setRequestData(json_encode($form_params));
 
-            $result = $this->client->post($endpoint, [ 'form_params' => $form_params ]);
+            $result = $this->client->post($endpoint, ['form_params' => $form_params]);
 
             $contents = $result->getBody()->getContents();
 
             $this->logger->setResponseCode($result->getStatusCode());
-            $this->logger->setResponseData((string) $contents);
+            $this->logger->setResponseData((string)$contents);
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $this->logger->setResponseCode($e->getResponse()->getStatusCode());
-                $this->logger->setResponseData((string) $e->getResponse()->getBody()->getContents());
+                $this->logger->setResponseData((string)$e->getResponse()->getBody()->getContents());
 
-                throw new TranssmartException('Error ' . $e->getResponse()->getStatusCode() .': ' . $e->getResponse()->getBody()->getContents());
+                throw new TranssmartException('Error ' . $e->getResponse()->getStatusCode() . ': ' . $e->getResponse()->getBody()->getContents());
             } else {
                 $this->logger->setResponseCode(null);
                 $this->logger->setResponseData('Transsmart error (no message provided)');
@@ -205,8 +207,8 @@ class Transsmart
     public function createDocument(array $params, $autoBook = false, $autoLabel = false, $labelUser = null)
     {
         $queryParams = [
-            'autobook'   => intval($autoBook),
-            'autolabel'  => intval($autoLabel),
+            'autobook' => intval($autoBook),
+            'autolabel' => intval($autoLabel),
             'label_user' => $labelUser
         ];
 
@@ -223,8 +225,8 @@ class Transsmart
     public function labelDocument($id, $pdf = false, $downloadOnly = false)
     {
         $queryParams = [
-            'username'     => $this->username,
-            'pdf'          => intval($pdf),
+            'username' => $this->username,
+            'pdf' => intval($pdf),
             'downloadonly' => intval($downloadOnly)
         ];
 
@@ -235,7 +237,7 @@ class Transsmart
     public function bookAndPrintDocument($id)
     {
         $queryParams = [
-            'id'       => $id,
+            'id' => $id,
             'username' => $this->username
         ];
 

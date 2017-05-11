@@ -2,9 +2,9 @@
 
 require 'vendor/autoload.php';
 
-use Picqer\Carriers\Transsmart;
+use Picqer\TranssmartClient\TranssmartClient;
 
-$client = new Transsmart('', '', true);
+$client = new TranssmartClient('', '', true);
 
 $documentData = [
     'Reference'      => 'testingddd123123',
@@ -14,7 +14,7 @@ $documentData = [
     'AddressZipcode' => '6981 AR',
     'AddressCity'    => 'Doesburg',
     'AddressCountry' => 'NL',
-    'AddressEmail'   => 'stephan@picqer.com',
+    'AddressEmail'   => 'info@example.com',
     'AddressPhone'   => '0313482375'
 ];
 

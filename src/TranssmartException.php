@@ -1,3 +1,5 @@
-<?php namespace Picqer\Carriers;
+<?php
+
+namespace Picqer\TranssmartClient;
 
 class TranssmartException extends \Exception {}

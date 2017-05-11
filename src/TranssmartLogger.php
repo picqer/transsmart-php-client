@@ -1,7 +1,9 @@
-<?php namespace Picqer\Carriers;
+<?php
 
-class TranssmartLogger {
+namespace Picqer\TranssmartClient;
 
+class TranssmartLogger
+{
     protected $requestUrl = '';
 
     protected $requestData = '';
