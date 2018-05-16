@@ -90,13 +90,12 @@ class TranssmartClient
                 $this->logger->setResponseData($error);
 
                 throw new TranssmartException($error);
-            } else {
-                $this->logger->setResponseCode(null);
-                $this->logger->setResponseData('Transsmart error (no message provided)');
-
-                throw new TranssmartException('Transsmart error (no message provided): ' . $e->getResponse()->getBody()->getContents());
             }
 
+            $this->logger->setResponseCode(null);
+            $this->logger->setResponseData('Transsmart error (no message provided)');
+
+            throw new TranssmartException('Transsmart error (no message provided): ' . $e->getMessage());
         }
 
         return json_decode($contents, true);
